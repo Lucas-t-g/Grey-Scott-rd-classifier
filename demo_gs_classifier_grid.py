@@ -10,31 +10,66 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Input
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.utils import to_categorical
-from sklearn.model_selection import train_test_split
+from scikeras.wrappers import KerasClassifier
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.svm import SVC
 
 from sim_folder_count import find_highest_simulation_number
 from get_ratio import get_ratio
 
 
-def load_data(path):
+def load_data(data_path):
     images = []
     ratios = []
     for filename in os.listdir(data_path):
         if filename.endswith(".png"):
             ratio = get_ratio(filename)
-            img_array = img_to_array(load_img(os.path.join(path, filename)))
-            if ratio is not None and ratio != 18:
+            img_array = img_to_array(load_img(os.path.join(data_path, filename)))
+            if ratio is not None:
+            # and ratio != 18:
                 ratios.append(ratio)
                 images.append(img_array)
 
     return np.array(images), np.array(ratios)
 
 
+def create_model(meta):
+    kernel_size = 3
+
+    img_shape = meta.get("X_shape_")[1:]
+    print("img_shape: ", img_shape)
+    n_classes_ = meta["n_classes_"]
+    model = Sequential([
+        Input(shape=img_shape),
+        Conv2D(filters=initial_filters, kernel_size=(kernel_size , kernel_size ), activation="relu"),
+        MaxPooling2D(pool_size=2),
+        Conv2D(filters=initial_filters*2, kernel_size=(kernel_size , kernel_size ), activation="relu"),
+        MaxPooling2D(pool_size=2),
+        Conv2D(filters=initial_filters*4, kernel_size=(kernel_size , kernel_size ), activation="relu"),
+        MaxPooling2D(pool_size=2),
+        # Conv2D(filters=initial_filters*8, kernel_size=(kernel_size , kernel_size ), activation='relu'),
+        # MaxPooling2D(pool_size=2),
+        # Conv2D(filters=initial_filters*16, kernel_size=(kernel_size , kernel_size ), activation='relu'),
+        # MaxPooling2D(pool_size=2),
+        Flatten(),
+        Dense(128, activation='relu'),
+        Dense(n_classes_, activation="softmax")  # Uma única saída para regressão
+    ])
+
+    # model.compile(
+    #     optimizer='adam',
+    #     loss='categorical_crossentropy',
+    #     metrics=['accuracy']
+    # )
+
+    return model
+
+
 if __name__ == "__main__":
 
     # Carregar os dados
-    data_path = f"simulation_{find_highest_simulation_number("./")}"
-    data_path = "simulation_46"
+    data_path = f"simulations/simulation_{find_highest_simulation_number("./")}"
+    data_path = "simulations/simulation_57"
     images, ratios = load_data(data_path)
     img_shape = images[0].shape
 
@@ -69,23 +104,32 @@ if __name__ == "__main__":
     # Construir o modelo
     initial_filters = 16
     kernel_size=11
-    model = Sequential([
-        Input(shape=img_shape),
-        Conv2D(filters=initial_filters, kernel_size=(kernel_size , kernel_size ), activation="relu"),
-        MaxPooling2D(pool_size=2),
-        Conv2D(filters=initial_filters*2, kernel_size=(kernel_size , kernel_size ), activation="relu"),
-        MaxPooling2D(pool_size=2),
-        Conv2D(filters=initial_filters*4, kernel_size=(kernel_size , kernel_size ), activation="relu"),
-        MaxPooling2D(pool_size=2),
-        # Conv2D(filters=initial_filters*8, kernel_size=(kernel_size , kernel_size ), activation='relu'),
-        # MaxPooling2D(pool_size=2),
-        # Conv2D(filters=initial_filters*16, kernel_size=(kernel_size , kernel_size ), activation='relu'),
-        # MaxPooling2D(pool_size=2),
-        Flatten(),
-        Dense(128, activation='relu'),
-        Dense(num_classes, activation="softmax")  # Uma única saída para regressão
-    ])
 
+    # model = create_model()
+
+    model = KerasClassifier(model=create_model, epochs=10, verbose=1)
+    print("parans: ", model.get_params())
+
+    param_grid = {
+        # "hidden_layer_dim": [50, 100, 200],
+        "loss": ["categorical_crossentropy"],
+        "optimizer": [
+            "adam",
+            "sgd"
+        ],
+        "optimizer__learning_rate": [0.0001, 0.001],
+
+        # "learning_rate": [0.1, 0.05, 0.01]
+        # "optimizer": ["adam", ]
+    }
+    # param_grid={'C': [1, 10], 'kernel': ('linear', 'rbf')}
+
+    grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring="accuracy", cv=2)
+
+    grid.fit(X_train, y_train)
+    print(grid.best_score_, grid.best_params_)
+
+    exit()
     # resumo legível da arquitetura deste modelo
     print(model.summary())
 
@@ -101,7 +145,7 @@ if __name__ == "__main__":
 
     early_stopping = EarlyStopping(
         monitor='val_loss', # Monitorar a perda no conjunto de validação
-        # monitor='acurracy', # Monitorar a perda no conjunto de validação
+        # monitor='accuracy', # Monitorar a perda no conjunto de validação
         # mode="min",
         min_delta=0.001,
         patience=10,        # Parar se a perda no conjunto de validação não melhorar por 10 épocas consecutivas

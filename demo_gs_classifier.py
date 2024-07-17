@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     # Carregar os dados
     data_path = f"simulation_{find_highest_simulation_number("./")}"
-    data_path = "simulation_57"
+    data_path = "simulations/simulation_57"
     images, ratios = load_data(data_path)
     img_shape = images[0].shape
 

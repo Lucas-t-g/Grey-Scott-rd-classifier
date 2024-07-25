@@ -13,7 +13,7 @@ ignorar o scale no classificador
 procurar se a rede treinada classifica padrões com F e K diferentes
 
 Grid Search
-learning_rate 
+learning_rate
 
 gerar um classificador robusto para passar uma imagem de exemplo e ele nos apontar os parâmetros para o GS gerar um padrão semelhante
 
@@ -21,3 +21,6 @@ gerar um classificador robusto para passar uma imagem de exemplo e ele nos apont
 pesquisar classificador multicategorias (https://machinelearningmastery.com/multi-class-classification-tutorial-keras-deep-learning-library/)
 
 
+https://stackoverflow.com/questions/72351077/python-scikeras-valueerror-invalid-parameter-layers-for-estimator-kerasclas
+
+https://adriangb.com/scikeras/stable/quickstart.html#grid-search

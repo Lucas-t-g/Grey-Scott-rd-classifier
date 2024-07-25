@@ -106,29 +106,46 @@ if __name__ == "__main__":
     kernel_size=11
 
     # model = create_model()
+    early_stopping = EarlyStopping(
+        # monitor='loss', # Monitorar a perda no conjunto de validação
+        monitor='loss', # Monitorar a perda no conjunto de validação
+        # mode="max",
+        min_delta=0.01,
+        patience=10,        # Parar se a perda no conjunto de validação não melhorar por 10 épocas consecutivas
+        verbose=1,
+        restore_best_weights=True # Restaurar os pesos do modelo para os da época com a melhor perda no conjunto de validação
+    )
+    model = KerasClassifier(model=create_model, epochs=70, verbose=1, callbacks=early_stopping)
 
-    model = KerasClassifier(model=create_model, epochs=10, verbose=1)
-    print("parans: ", model.get_params())
+    print("parans1: ", model.get_params())
 
     param_grid = {
         # "hidden_layer_dim": [50, 100, 200],
         "loss": ["categorical_crossentropy"],
         "optimizer": [
             "adam",
-            "sgd"
+            # "sgd",
         ],
-        "optimizer__learning_rate": [0.0001, 0.001],
-
-        # "learning_rate": [0.1, 0.05, 0.01]
-        # "optimizer": ["adam", ]
+        "optimizer__learning_rate": [
+            # 0.0001,
+            0.001,
+            # 0.01,
+            # 0.1
+        ],
+        # "estimator__callbacks": [early_stopping]
     }
-    # param_grid={'C': [1, 10], 'kernel': ('linear', 'rbf')}
 
-    grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring="accuracy", cv=2)
+    grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring="accuracy", cv=2, n_jobs=14)
+    print("parans2: ", grid.get_params())
 
-    grid.fit(X_train, y_train)
-    print(grid.best_score_, grid.best_params_)
+    fitted = grid.fit(X_train, y_train)
+    print("best_params: ", grid.best_score_, grid.best_params_)
+    print("best_params: ", fitted.best_score_, fitted.best_params_)
 
+    print("grid score: ", grid.score(X_test, y_test))
+    print("fitted score: ", fitted.score(X_test, y_test))
+
+    print("equal: ", fitted is grid, fitted == grid)
     exit()
     # resumo legível da arquitetura deste modelo
     print(model.summary())

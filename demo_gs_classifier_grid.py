@@ -55,13 +55,6 @@ def create_model(meta):
         Dense(128, activation='relu'),
         Dense(n_classes_, activation="softmax")  # Uma única saída para regressão
     ])
-
-    # model.compile(
-    #     optimizer='adam',
-    #     loss='categorical_crossentropy',
-    #     metrics=['accuracy']
-    # )
-
     return model
 
 
@@ -115,7 +108,7 @@ if __name__ == "__main__":
         verbose=1,
         restore_best_weights=True # Restaurar os pesos do modelo para os da época com a melhor perda no conjunto de validação
     )
-    model = KerasClassifier(model=create_model, epochs=70, verbose=1, callbacks=early_stopping)
+    model = KerasClassifier(model=create_model, epochs=150, verbose=1, callbacks=early_stopping)
 
     print("parans1: ", model.get_params())
 
@@ -124,18 +117,18 @@ if __name__ == "__main__":
         "loss": ["categorical_crossentropy"],
         "optimizer": [
             "adam",
-            # "sgd",
+            "sgd",
         ],
         "optimizer__learning_rate": [
-            # 0.0001,
+            0.0001,
             0.001,
-            # 0.01,
-            # 0.1
+            0.01,
+            0.1
         ],
         # "estimator__callbacks": [early_stopping]
     }
 
-    grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring="accuracy", cv=2, n_jobs=14)
+    grid = GridSearchCV(estimator=model, param_grid=param_grid, scoring="accuracy", cv=6, n_jobs=4)
     print("parans2: ", grid.get_params())
 
     fitted = grid.fit(X_train, y_train)

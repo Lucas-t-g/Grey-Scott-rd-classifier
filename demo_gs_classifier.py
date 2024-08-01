@@ -16,13 +16,13 @@ from sim_folder_count import find_highest_simulation_number
 from get_ratio import get_ratio
 
 
-def load_data(path):
+def load_data(data_path):
     images = []
     ratios = []
     for filename in os.listdir(data_path):
         if filename.endswith(".png"):
             ratio = get_ratio(filename)
-            img_array = img_to_array(load_img(os.path.join(path, filename)))
+            img_array = img_to_array(load_img(os.path.join(data_path, filename)))
             if ratio is not None and ratio != 18:
                 ratios.append(ratio)
                 images.append(img_array)

@@ -1,27 +1,19 @@
-variar o scale junto com os ratios
-ratios = [4.5, 5, 6, 7, 8,10, 12, 15, 18, 20]
-sacale = [0.1, 0.15, 0.2]
-
-early stopping
-https://keras.io/api/callbacks/early_stopping/
-
-remover o ratio 18
-
-
 ignorar o scale no classificador
-
-procurar se a rede treinada classifica padrões com F e K diferentes
 
 - gerar um classificador robusto para passar uma imagem de exemplo e ele nos apontar os parâmetros para o GS gerar um padrão semelhante
 
 - com gridsearch identificar melhores parâmetros para a arquitetura
 
-- pesquisar classificador multicategorias (ratio e scale) (https://machinelearningmastery.com/multi-class-classification-tutorial-keras-deep-learning-library/)
+- salvar a seed pra reproduzir o mesmo modelo
 
+- salvar desvio padrão
+
+- pesquisar classificador multicategorias (ratio e scale) (https://machinelearningmastery.com/multi-class-classification-tutorial-keras-deep-learning-library/)
 
 https://stackoverflow.com/questions/72351077/python-scikeras-valueerror-invalid-parameter-layers-for-estimator-kerasclas
 
 https://adriangb.com/scikeras/stable/quickstart.html#grid-search
+
 
 
 

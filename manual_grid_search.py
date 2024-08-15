@@ -4,9 +4,10 @@ from datetime import datetime
 from itertools import product
 from json import dumps, loads, dump, load
 from pprint import pprint
-from statistics import mean
+from statistics import mean, stdev
 
 import tensorflow as tf
+from tensorflow.keras import backend
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.utils import to_categorical
@@ -21,6 +22,7 @@ N_JOBS = 0
 if N_JOBS:
     tf.config.threading.set_intra_op_parallelism_threads(N_JOBS)
     tf.config.threading.set_inter_op_parallelism_threads(N_JOBS)
+
 
 def load_data(data_path):
     images = []
@@ -37,12 +39,17 @@ def load_data(data_path):
     return np.array(images), np.array(ratios)
 
 
+# def simulation_is_done(sim_data, file_data):
+#     for
+
+
 if __name__ == "__main__":
 
     # Carregar os dados
     data_path = f"simulations/simulation_{find_highest_simulation_number("./")}"
     data_path = "simulations/simulation_57"
     images, ratios = load_data(data_path)
+    file_name = f"cnn_results/test_2.json"
     img_shape = images[0].shape
 
 
@@ -66,24 +73,26 @@ if __name__ == "__main__":
     y_test = to_categorical(y_test, num_classes=num_classes)
 
 
+    data_result_keys = ["std_accuracy", "average_accuracy", "average_loss", "accuracy", "loss"]
+    ingnore_params = ["seeds"]
 
     params = {
         "img_shape": [img_shape],
         "num_classes": [num_classes],
-        "initial_filters": [2**i for i in range(4, 5)],
+        "initial_filters": [2**i for i in range(2, 7)],
         "kernel_size": [3],
-        "layers": [1, 5],
-        "optimizer": ["Adam"],
-        "learning_rate": [0.001],
+        "layers": [3, 4, 5],
+        "optimizer": ["Adam", "SGD"],
+        "learning_rate": [0.001, 0.01, 0.1],
         "loss": ["categorical_crossentropy"],
         "metrics": [["accuracy"]],
         "early_stopping__use_early_stopping": [True],
         "early_stopping__monitor": ["val_loss"],
         "early_stopping__mode": ["min"],
-        "early_stopping__min_delta": [0],
-        "early_stopping__patience": [0],
+        "early_stopping__min_delta": [0, 0.001],
+        "early_stopping__patience": [1, 5],
     }
-    samples_for_each_params_combination = 3
+    samples_for_each_params_combination = 10
 
     early_stopping_prefix = "early_stopping__"
 
@@ -91,12 +100,47 @@ if __name__ == "__main__":
     keys = params.keys()
     values = params.values()
     params_combinations = [dict(zip(keys, combinacao)) for combinacao in product(*values)]
-    pprint(params_combinations)
+    # pprint(params_combinations)
+    try:
+        with open(file_name, "r") as file:
+            file_data = load(file)
+            params_combinations = file_data.copy()
+        print("file already exists")
+    except:
+        for i, params_combination in enumerate(params_combinations):
+            params_combination["loss"] = []
+            params_combination["accuracy"] = []
+            params_combination["seeds"] = []
 
-    for params_combination in params_combinations:
+            params_combination["average_loss"] = None
+            params_combination["average_accuracy"] = None
+            params_combination["std_accuracy"] = None
+
+        with open(file_name, "x") as file:
+            dump(params_combinations, file, indent=4)
+        print("create new file")
+
+
+    for i, params_combination in enumerate(params_combinations):
+        print(f"running param combinations: {i}/{len(params_combinations)}")
+        if (params_combination["average_loss"] is not None
+            and params_combination["average_accuracy"] is not None
+            and params_combination["std_accuracy"] is not None
+        ):
+            print(f"combiantion {i} already done.")
+            continue
+
         loss_data = []
         accuracy_data = []
-        for i in range(samples_for_each_params_combination):
+        seeds = []
+        for j in range(samples_for_each_params_combination):
+            # comando para 'zerar' a biblioteca Keras
+            backend.clear_session()
+
+            # definição de sementes aleatórias
+            np.random.seed(j)
+            tf.random.set_seed(j)
+            seeds.append(j)
             # Selecionando apenas os campos com o prefixo especificado e removendo o prefixo
             early_stopping_params = {
                 k[len(early_stopping_prefix):]: v
@@ -106,7 +150,7 @@ if __name__ == "__main__":
             model_params = {
                 k: v
                 for k, v in params_combination.items()
-                if not k.startswith(early_stopping_prefix)
+                if not k.startswith(early_stopping_prefix) and k not in data_result_keys and k not in ingnore_params
             }
 
             model = create_model(**model_params)
@@ -118,7 +162,8 @@ if __name__ == "__main__":
 
             # Treinar o modelo
             history = model.fit(X_train, y_train, epochs=100, validation_data=(X_test, y_test),
-                callbacks=callbacks
+                callbacks=callbacks,
+                verbose=0,
             )
 
             # Avaliar o modelo
@@ -130,9 +175,12 @@ if __name__ == "__main__":
 
         params_combination["loss"] = loss_data
         params_combination["accuracy"] = accuracy_data
+        params_combination["seeds"] = seeds
 
         params_combination["average_loss"] = mean(loss_data)
         params_combination["average_accuracy"] = mean(accuracy_data)
+        params_combination["std_accuracy"] = stdev(accuracy_data)
 
-    with open(f"cnn_results/{datetime.now().isoformat().replace(":", "-")}.json", "x") as file:
-        dump(params_combinations, file, indent=4)
+        # with open(f"cnn_results/{datetime.now().isoformat().replace(":", "-")}.json", "x") as file:
+        with open(file_name, "w") as file:
+            dump(params_combinations, file, indent=4)

@@ -17,6 +17,7 @@ def create_model(
         learning_rate=0.001,
         loss='categorical_crossentropy',
         metrics=['accuracy'],
+        seed=None,
         display_model=False,
     ):
     max_layers = int(log(img_shape[0] - (kernel_size - 1), 2)) -1

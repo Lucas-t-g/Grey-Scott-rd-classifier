@@ -5,6 +5,8 @@ from keras import layers
 from tensorflow import data as tf_data
 import matplotlib.pyplot as plt
 
+import tensorflow as tf
+from tensorflow.keras import backend
 from tensorflow.keras import optimizers
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.models import Sequential
@@ -15,23 +17,33 @@ from sklearn.model_selection import train_test_split
 
 from sim_folder_count import find_highest_simulation_number
 from get_ratio import get_ratio
+from get_scale import get_scale
 
 
 def load_data(data_path):
     images = []
     ratios = []
+    scales = []
     for filename in os.listdir(data_path):
         if filename.endswith(".png"):
             ratio = get_ratio(filename)
+            scale = get_scale(filename)
             img_array = img_to_array(load_img(os.path.join(data_path, filename)))
             if ratio is not None and ratio != 18:
                 ratios.append(ratio)
+                scales.append(scale)
                 images.append(img_array)
 
     return np.array(images), np.array(ratios)
 
 
 if __name__ == "__main__":
+
+    backend.clear_session()
+    # definição de sementes aleatórias
+    seed = 123
+    np.random.seed(seed)
+    tf.random.set_seed(seed)
 
     # Carregar os dados
     data_path = f"simulation_{find_highest_simulation_number("./")}"
@@ -76,33 +88,33 @@ if __name__ == "__main__":
         Conv2D(
             filters=initial_filters,
             kernel_size=(kernel_size , kernel_size ),
-            activation="relu",
+            # activation="relu",
         ),
         MaxPooling2D(pool_size=2),
         Conv2D(
             filters=initial_filters*2,
             kernel_size=(kernel_size , kernel_size ),
-            activation="relu",
+            # activation="relu",
         ),
-        # MaxPooling2D(pool_size=2),
-        # Conv2D(
-        #     filters=initial_filters*4,
-        #     kernel_size=(kernel_size , kernel_size ),
-        #     activation="relu",
-        # ),
-        # MaxPooling2D(pool_size=2),
-        # Conv2D(
-        #     filters=initial_filters*8,
-        #     kernel_size=(kernel_size , kernel_size ),
-        #     activation='relu',
-        # ),
-        # MaxPooling2D(pool_size=2),
-        # Conv2D(
-        #     filters=initial_filters*16,
-        #     kernel_size=(kernel_size , kernel_size ),
-        #     activation='relu',
-        # ),
-        # MaxPooling2D(pool_size=2),
+        MaxPooling2D(pool_size=2),
+        Conv2D(
+            filters=initial_filters*4,
+            kernel_size=(kernel_size , kernel_size ),
+            # activation="relu",
+        ),
+        MaxPooling2D(pool_size=2),
+        Conv2D(
+            filters=initial_filters*8,
+            kernel_size=(kernel_size , kernel_size ),
+            # activation='relu',
+        ),
+        MaxPooling2D(pool_size=2),
+        Conv2D(
+            filters=initial_filters*16,
+            kernel_size=(kernel_size , kernel_size ),
+            # activation='relu',
+        ),
+        MaxPooling2D(pool_size=2),
         Flatten(),
         Dense(64, activation='relu'),
         Dense(num_classes, activation="softmax")  # Uma única saída para regressão
@@ -117,7 +129,7 @@ if __name__ == "__main__":
     optimizer = getattr(optimizers, "Adam")(learning_rate=0.001)
     # Compilar o modelo
     model.compile(
-        optimizer='adam',
+        optimizer=optimizer,
         loss='categorical_crossentropy',
         metrics=['accuracy']
     )
@@ -144,8 +156,8 @@ if __name__ == "__main__":
 
 
     output = model.predict(X_test)
-    for elem in output:
-        print(elem)
+    print("output: ", output[0])
+    print("output: ", output)
 
     # Plotar os resultados
     fig, axes = plt.subplots()

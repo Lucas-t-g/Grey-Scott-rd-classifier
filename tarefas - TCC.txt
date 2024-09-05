@@ -1,12 +1,5 @@
-ignorar o scale no classificador
-
 - gerar um classificador robusto para passar uma imagem de exemplo e ele nos apontar os parâmetros para o GS gerar um padrão semelhante
 
-- com gridsearch identificar melhores parâmetros para a arquitetura
-
-- salvar a seed pra reproduzir o mesmo modelo
-
-- salvar desvio padrão
 
 - pesquisar classificador multicategorias (ratio e scale) (https://machinelearningmastery.com/multi-class-classification-tutorial-keras-deep-learning-library/)
 
@@ -14,45 +7,21 @@ https://stackoverflow.com/questions/72351077/python-scikeras-valueerror-invalid-
 
 https://adriangb.com/scikeras/stable/quickstart.html#grid-search
 
+https://pyimagesearch.com/2018/06/04/keras-multiple-outputs-and-multiple-losses
+
+https://scikit-learn.org/stable/modules/multiclass.html
+
+escrever o tcc
+começar por: 
+	referencial teórico
+	metodologia
 
 
 
+testar a rede como regressor
+	mudar os dados de entrada discretizados
+	mudar a ultima camada densa pra uma saída, remover a "activation"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+falar com Bixo pra banca
+https://cloud.google.com/speech-to-text
+https://keras.io/api/losses/regression_losses/#meanabsoluteerror-class

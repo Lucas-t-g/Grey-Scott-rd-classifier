@@ -5,6 +5,8 @@ from keras import layers
 from tensorflow import data as tf_data
 import matplotlib.pyplot as plt
 
+import tensorflow as tf
+from tensorflow.keras import backend
 from tensorflow.keras import optimizers
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.models import Sequential
@@ -33,6 +35,12 @@ def load_data(data_path):
 
 if __name__ == "__main__":
 
+    backend.clear_session()
+    # definição de sementes aleatórias
+    seed = 123
+    np.random.seed(seed)
+    tf.random.set_seed(seed)
+
     # Carregar os dados
     data_path = f"simulation_{find_highest_simulation_number("./")}"
     data_path = "simulations/simulation_57"
@@ -42,10 +50,11 @@ if __name__ == "__main__":
     print("shape: ", img_shape)
 
     # Converter strings para inteiros
-    unique_ratios = np.unique(ratios)
-    num_classes = len(unique_ratios)
-    ratio_to_class = {ratio: i for i, ratio in enumerate(unique_ratios)}
-    classes = np.array([ratio_to_class[ratio] for ratio in ratios])
+    # unique_ratios = np.unique(ratios)
+    # num_classes = len(unique_ratios)
+    # ratio_to_class = {ratio: i for i, ratio in enumerate(unique_ratios)}
+    # classes = np.array([ratio_to_class[ratio] for ratio in ratios])
+    # classes = unique_ratios
 
     # print("num_classes: ", num_classes)
     # print("ratio_to_class: ", ratio_to_class)
@@ -53,17 +62,17 @@ if __name__ == "__main__":
     # print("classes: ", classes)
 
     # Dividir em conjunto de treino e teste
-    X_train, X_test, y_train, y_test = train_test_split(images, classes, test_size=0.3)
+    X_train, X_test, y_train, y_test = train_test_split(images, ratios, test_size=0.3)
     print("y_train: ", len(y_train))
     print("y_test: ", len(y_test))
 
-    # Garantir que todos os valores em y_train e y_test estejam dentro do intervalo correto
-    assert np.all(y_train < num_classes), "Existe um índice fora do intervalo em y_train"
-    assert np.all(y_test < num_classes), "Existe um índice fora do intervalo em y_test"
+    # # Garantir que todos os valores em y_train e y_test estejam dentro do intervalo correto
+    # assert np.all(y_train < num_classes), "Existe um índice fora do intervalo em y_train"
+    # assert np.all(y_test < num_classes), "Existe um índice fora do intervalo em y_test"
 
-    # Converter rótulos para formato categórico
-    y_train = to_categorical(y_train, num_classes=num_classes)
-    y_test = to_categorical(y_test, num_classes=num_classes)
+    # # Converter rótulos para formato categórico
+    # y_train = to_categorical(y_train, num_classes=num_classes)
+    # y_test = to_categorical(y_test, num_classes=num_classes)
 
     # print(y_train)
     # print(y_test)
@@ -84,28 +93,35 @@ if __name__ == "__main__":
             kernel_size=(kernel_size , kernel_size ),
             activation="relu",
         ),
-        # MaxPooling2D(pool_size=2),
-        # Conv2D(
-        #     filters=initial_filters*4,
-        #     kernel_size=(kernel_size , kernel_size ),
-        #     activation="relu",
-        # ),
-        # MaxPooling2D(pool_size=2),
-        # Conv2D(
-        #     filters=initial_filters*8,
-        #     kernel_size=(kernel_size , kernel_size ),
-        #     activation='relu',
-        # ),
-        # MaxPooling2D(pool_size=2),
-        # Conv2D(
-        #     filters=initial_filters*16,
-        #     kernel_size=(kernel_size , kernel_size ),
-        #     activation='relu',
-        # ),
-        # MaxPooling2D(pool_size=2),
+        MaxPooling2D(pool_size=2),
+        Conv2D(
+            filters=initial_filters*4,
+            kernel_size=(kernel_size , kernel_size ),
+            activation="relu",
+        ),
+        MaxPooling2D(pool_size=2),
+        Conv2D(
+            filters=initial_filters*8,
+            kernel_size=(kernel_size , kernel_size ),
+            activation='relu',
+        ),
+        MaxPooling2D(pool_size=2),
+        Conv2D(
+            filters=initial_filters*16,
+            kernel_size=(kernel_size , kernel_size ),
+            activation='relu',
+        ),
+        MaxPooling2D(pool_size=2),
         Flatten(),
         Dense(64, activation='relu'),
-        Dense(num_classes, activation="softmax")  # Uma única saída para regressão
+        # Dense(
+        #     num_classes,  # Uma única saída para regressão
+        #     activation="softmax",
+        # )
+        Dense(
+            1,
+            activation=None,
+        )
     ])
 
     # resumo legível da arquitetura deste modelo
@@ -118,15 +134,15 @@ if __name__ == "__main__":
     # Compilar o modelo
     model.compile(
         optimizer='adam',
-        loss='categorical_crossentropy',
-        metrics=['accuracy']
+        loss='mean_absolute_percentage_error',
+        # metrics=['accuracy']
     )
 
     early_stopping = EarlyStopping(
         monitor='val_loss', # Monitorar a perda no conjunto de validação
         # monitor='acurracy', # Monitorar a perda no conjunto de validação
         mode="min",
-        min_delta=0.001,
+        min_delta=0.0001,
         patience=5,        # Parar se a perda no conjunto de validação não melhorar por 10 épocas consecutivas
         # verbose=1,
         restore_best_weights=True # Restaurar os pesos do modelo para os da época com a melhor perda no conjunto de validação
@@ -138,14 +154,15 @@ if __name__ == "__main__":
     )
 
     # Avaliar o modelo
-    loss, accuracy = model.evaluate(X_test, y_test)
+    loss = model.evaluate(X_test, y_test)
     print(f'Loss: {loss}')
-    print(f'Accuracy: {accuracy}')
+    # print(f'Accuracy: {accuracy}')
 
 
     output = model.predict(X_test)
-    for elem in output:
-        print(elem)
+    # print("utput: ", output)
+    for i in range(len(output)):
+        print(output[i], " - ", y_test[i], " -> ", abs(y_test[i]-output[i]))
 
     # Plotar os resultados
     fig, axes = plt.subplots()
@@ -153,9 +170,9 @@ if __name__ == "__main__":
     axes.set_ylim(bottom=0, top=3)
     plt.plot(history.history['loss'], label='train_loss')
     plt.plot(history.history['val_loss'], label='val_loss')
-    plt.plot(history.history['accuracy'], label='train_accuracy')
-    plt.plot(history.history['val_accuracy'], label='val_accuracy')
+    # plt.plot(history.history['accuracy'], label='train_accuracy')
+    # plt.plot(history.history['val_accuracy'], label='val_accuracy')
     plt.xlabel('Epoch')
-    plt.ylabel('Loss/Accuracy')
+    plt.ylabel('Loss')
     plt.legend()
     plt.show()

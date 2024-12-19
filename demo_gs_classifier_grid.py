@@ -12,9 +12,8 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.utils import to_categorical
 from scikeras.wrappers import KerasClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.svm import SVC
 
-from sim_folder_count import find_highest_simulation_number
+from utils.sim_folder_count import find_highest_simulation_number
 from get_ratio import get_ratio
 
 
@@ -47,10 +46,10 @@ def create_model(meta):
         MaxPooling2D(pool_size=2),
         Conv2D(filters=initial_filters*4, kernel_size=(kernel_size , kernel_size ), activation="relu"),
         MaxPooling2D(pool_size=2),
-        # Conv2D(filters=initial_filters*8, kernel_size=(kernel_size , kernel_size ), activation='relu'),
-        # MaxPooling2D(pool_size=2),
-        # Conv2D(filters=initial_filters*16, kernel_size=(kernel_size , kernel_size ), activation='relu'),
-        # MaxPooling2D(pool_size=2),
+        Conv2D(filters=initial_filters*8, kernel_size=(kernel_size , kernel_size ), activation='relu'),
+        MaxPooling2D(pool_size=2),
+        Conv2D(filters=initial_filters*16, kernel_size=(kernel_size , kernel_size ), activation='relu'),
+        MaxPooling2D(pool_size=2),
         Flatten(),
         Dense(128, activation='relu'),
         Dense(n_classes_, activation="softmax")  # Uma única saída para regressão

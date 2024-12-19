@@ -1,10 +1,12 @@
 from math import log
 
 from keras.utils import plot_model
+from keras.utils import set_random_seed
 
 from tensorflow.keras import optimizers
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Input
+
 
 
 def create_model(
@@ -20,6 +22,7 @@ def create_model(
         seed=None,
         display_model=False,
     ):
+    print(f"kernel size: {kernel_size}")
     max_layers = int(log(img_shape[0] - (kernel_size - 1), 2)) -1
     # print("max layers: ", max_layers, img_shape)
     if layers > max_layers: layers = max_layers
@@ -33,12 +36,17 @@ def create_model(
         initial_filters *= 2
 
     x = Flatten()(x)
-    x = Dense(64, activation='relu')(x)
+    x = Dense(64, activation="relu")(x)
 
-    outputs = [Dense(num_classes, activation='softmax', name=f'output_{i+1}')(x) for i, num_classes in enumerate(num_classes_list)]
+    print("num classes: ", num_classes_list)
+    outputs = [Dense(num_classes, activation="softmax", name=f"output_{i}")(x) for i, num_classes in enumerate(num_classes_list)]
+    output_losses = {f"output_{i}": loss for i, num_classes in enumerate(num_classes_list)}
+    output_metrics = {f"output_{i}": metrics for i, num_classes in enumerate(num_classes_list)}
     print(f"outputs: {outputs}")
     for i, num_classes in enumerate(num_classes_list):
         print(f"{i} - {num_classes}")
+    print(f"losses: {output_losses}")
+    print(f"output_metrics: {output_metrics}")
 
     model = Model(inputs=inputs, outputs=outputs)
 
@@ -53,10 +61,13 @@ def create_model(
     optimizer = getattr(optimizers, optimizer)(learning_rate=learning_rate)
     model.compile(
         optimizer=optimizer,
-        loss=loss,
-        metrics=metrics,
+        loss=output_losses,
+        metrics=output_metrics,
     )
     return model
 
 if __name__ == "__main__":
     create_model((128, 128, 3), [7, 3], layers=5, display_model=True)
+
+
+# https://www.kaggle.com/code/peremartramanonellas/guide-multiple-outputs-with-keras-functional-api

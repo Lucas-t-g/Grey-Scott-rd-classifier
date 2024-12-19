@@ -12,8 +12,9 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Input
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
-from sim_folder_count import find_highest_simulation_number
+from utils.sim_folder_count import find_highest_simulation_number
 from get_ratio import get_ratio
 
 
@@ -84,25 +85,25 @@ if __name__ == "__main__":
             kernel_size=(kernel_size , kernel_size ),
             activation="relu",
         ),
-        # MaxPooling2D(pool_size=2),
-        # Conv2D(
-        #     filters=initial_filters*4,
-        #     kernel_size=(kernel_size , kernel_size ),
-        #     activation="relu",
-        # ),
-        # MaxPooling2D(pool_size=2),
-        # Conv2D(
-        #     filters=initial_filters*8,
-        #     kernel_size=(kernel_size , kernel_size ),
-        #     activation='relu',
-        # ),
-        # MaxPooling2D(pool_size=2),
-        # Conv2D(
-        #     filters=initial_filters*16,
-        #     kernel_size=(kernel_size , kernel_size ),
-        #     activation='relu',
-        # ),
-        # MaxPooling2D(pool_size=2),
+        MaxPooling2D(pool_size=2),
+        Conv2D(
+            filters=initial_filters*4,
+            kernel_size=(kernel_size , kernel_size ),
+            activation="relu",
+        ),
+        MaxPooling2D(pool_size=2),
+        Conv2D(
+            filters=initial_filters*8,
+            kernel_size=(kernel_size , kernel_size ),
+            activation='relu',
+        ),
+        MaxPooling2D(pool_size=2),
+        Conv2D(
+            filters=initial_filters*16,
+            kernel_size=(kernel_size , kernel_size ),
+            activation='relu',
+        ),
+        MaxPooling2D(pool_size=2),
         Flatten(),
         Dense(64, activation='relu'),
         Dense(num_classes, activation="softmax")  # Uma única saída para regressão
@@ -117,7 +118,7 @@ if __name__ == "__main__":
     optimizer = getattr(optimizers, "Adam")(learning_rate=0.001)
     # Compilar o modelo
     model.compile(
-        optimizer='adam',
+        optimizer=optimizer,
         loss='categorical_crossentropy',
         metrics=['accuracy']
     )
@@ -143,9 +144,16 @@ if __name__ == "__main__":
     print(f'Accuracy: {accuracy}')
 
 
-    output = model.predict(X_test)
-    for elem in output:
-        print(elem)
+    y_predict = model.predict(X_test)
+    y_pred_max = np.argmax(y_predict, axis=1)
+    y_test_max = np.argmax(y_test, axis=1)
+    cm = confusion_matrix(y_true=y_test_max, y_pred=y_pred_max, normalize="pred")
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+    disp.plot()
+    plt.show()
+
+    # for elem in output:
+    #     print(elem)
 
     # Plotar os resultados
     fig, axes = plt.subplots()

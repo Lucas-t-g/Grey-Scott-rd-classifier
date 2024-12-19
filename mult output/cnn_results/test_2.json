@@ -1,0 +1,36 @@
+[
+    {
+        "img_shape": [
+            128,
+            128,
+            3
+        ],
+        "num_classes_list": [
+            7,
+            3
+        ],
+        "initial_filters": 8,
+        "kernel_size": 3,
+        "layers": 5,
+        "optimizer": "Adam",
+        "learning_rate": 0.001,
+        "loss": [],
+        "metrics": [
+            "accuracy"
+        ],
+        "early_stopping__use_early_stopping": true,
+        "early_stopping__monitor": "loss",
+        "early_stopping__mode": "min",
+        "early_stopping__min_delta": 0.001,
+        "early_stopping__patience": 5,
+        "early_stopping__restore_best_weights": true,
+        "output_0_accuracy": [],
+        "accuracy_1_data": [],
+        "seeds": [],
+        "average_loss": null,
+        "average_accuracy_0": null,
+        "std_accuracy_0": null,
+        "average_accuracy_1": null,
+        "std_accuracy_1": null
+    }
+]

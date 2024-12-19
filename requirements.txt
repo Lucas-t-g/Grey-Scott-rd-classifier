@@ -1,0 +1,14 @@
+matplotlib==3.9.0
+matplotlib-inline==0.1.7
+more-itertools==10.5.0
+multiprocess==0.70.16
+nest-asyncio==1.6.0
+keras==3.3.3
+scikeras==0.13.0
+scikit-learn==1.5.0
+scipy==1.13.1
+tensorboard==2.16.2
+tensorboard-data-server==0.7.2
+tensorflow==2.16.1
+tensorflow-intel
+threadpoolctl==3.5.0

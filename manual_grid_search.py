@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split
 from keras import backend as K
 
 from model import create_model
-from sim_folder_count import find_highest_simulation_number
+from utils.sim_folder_count import find_highest_simulation_number
 from get_ratio import get_ratio
 
 N_JOBS = 0
@@ -91,6 +91,7 @@ if __name__ == "__main__":
         "early_stopping__mode": ["min"],
         "early_stopping__min_delta": [0, 0.001],
         "early_stopping__patience": [1, 5],
+        "early_stopping__restore_best_weights": True,
     }
     samples_for_each_params_combination = 10
 

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from multiprocessing import Process
 
 from demo__gray_scott_standard_model import generic, gs
-from sim_folder_count import find_highest_simulation_number
+from utils.sim_folder_count import find_highest_simulation_number
 
 
 def multiprocess_simulation(ratios, scales, seeds, sim_folder, step):

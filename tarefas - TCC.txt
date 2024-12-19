@@ -25,3 +25,13 @@ testar a rede como regressor
 falar com Bixo pra banca
 https://cloud.google.com/speech-to-text
 https://keras.io/api/losses/regression_losses/#meanabsoluteerror-class
+
+
+
+
+
+
+pesquisar melhor o earlystopping para multioutputs
+testar grid search para learning ratio
+testar com mais seeds
+testar ciamesas

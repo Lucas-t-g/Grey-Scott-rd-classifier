@@ -15,7 +15,7 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
-from sim_folder_count import find_highest_simulation_number
+from utils.sim_folder_count import find_highest_simulation_number
 from get_ratio import get_ratio
 
 

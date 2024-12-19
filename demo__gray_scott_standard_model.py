@@ -21,7 +21,7 @@ import numpy as np
 from scipy import ndimage
 import os
 
-from sim_folder_count import find_highest_simulation_number
+from utils.sim_folder_count import find_highest_simulation_number
 
 def gs(ma, mb, mc, la, lb, lc, da, db, dc, dt, parms):
     F, K = parms

@@ -5,6 +5,7 @@ from keras import layers
 from tensorflow import data as tf_data
 import matplotlib.pyplot as plt
 
+import tensorflow as tf
 from tensorflow.keras import optimizers
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.models import Sequential
@@ -15,7 +16,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 from utils.sim_folder_count import find_highest_simulation_number
-from get_ratio import get_ratio
+from utils.get_ratio import get_ratio
 
 
 def load_data(data_path):
@@ -34,8 +35,16 @@ def load_data(data_path):
 
 if __name__ == "__main__":
 
+    # backend.clear_session()
+    seed = 123
+    tf.keras.utils.set_random_seed(seed)
+    tf.config.experimental.enable_op_determinism()
+    # definição de sementes aleatórias
+    # np.random.seed(seed)
+    # tf.random.set_seed(seed)
+
     # Carregar os dados
-    data_path = f"simulation_{find_highest_simulation_number("./")}"
+    data_path = f"simulation_{find_highest_simulation_number('./')}"
     data_path = "simulations/simulation_57"
     images, ratios = load_data(data_path)
     img_shape = images[0].shape

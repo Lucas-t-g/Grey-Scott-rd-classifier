@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
 
     data_result_keys = ["std_accuracy", "average_accuracy", "average_loss", "accuracy", "loss"]
-    ingnore_params = ["seeds"]
+    ignore_params = ["seeds"]
 
     params = {
         "img_shape": [img_shape],
@@ -151,7 +151,7 @@ if __name__ == "__main__":
             model_params = {
                 k: v
                 for k, v in params_combination.items()
-                if not k.startswith(early_stopping_prefix) and k not in data_result_keys and k not in ingnore_params
+                if not k.startswith(early_stopping_prefix) and k not in data_result_keys and k not in ignore_params
             }
 
             model = create_model(**model_params)

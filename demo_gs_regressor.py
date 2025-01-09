@@ -16,7 +16,7 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
 from utils.sim_folder_count import find_highest_simulation_number
-from get_ratio import get_ratio
+from utils.get_ratio import get_ratio
 
 
 def load_data(data_path):
@@ -35,14 +35,16 @@ def load_data(data_path):
 
 if __name__ == "__main__":
 
-    backend.clear_session()
-    # definição de sementes aleatórias
+    # backend.clear_session()
     seed = 123
-    np.random.seed(seed)
-    tf.random.set_seed(seed)
+    tf.keras.utils.set_random_seed(seed)
+    tf.config.experimental.enable_op_determinism()
+    # definição de sementes aleatórias
+    # np.random.seed(seed)
+    # tf.random.set_seed(seed)
 
     # Carregar os dados
-    data_path = f"simulation_{find_highest_simulation_number("./")}"
+    data_path = f"simulation_{find_highest_simulation_number('./')}"
     data_path = "simulations/simulation_57"
     images, ratios = load_data(data_path)
     img_shape = images[0].shape
@@ -152,6 +154,7 @@ if __name__ == "__main__":
     history = model.fit(X_train, y_train, epochs=100, validation_data=(X_test, y_test),
         callbacks=[early_stopping]
     )
+    print(history.history)
 
     # Avaliar o modelo
     loss = model.evaluate(X_test, y_test)
@@ -161,13 +164,13 @@ if __name__ == "__main__":
 
     output = model.predict(X_test)
     # print("utput: ", output)
-    for i in range(len(output)):
-        print(output[i], " - ", y_test[i], " -> ", abs(y_test[i]-output[i]))
+    # for i in range(len(output)):
+    #     print(output[i], " - ", y_test[i], " -> ", abs(y_test[i]-output[i]))
 
     # Plotar os resultados
     fig, axes = plt.subplots()
     # plt.axes.set_xlim(left=0, right=40)
-    axes.set_ylim(bottom=0, top=3)
+    # axes.set_ylim(bottom=0, top=3)
     plt.plot(history.history['loss'], label='train_loss')
     plt.plot(history.history['val_loss'], label='val_loss')
     # plt.plot(history.history['accuracy'], label='train_accuracy')
@@ -176,3 +179,4 @@ if __name__ == "__main__":
     plt.ylabel('Loss')
     plt.legend()
     plt.show()
+    print("AAAAAAAAAAAAAAAAAAAA")

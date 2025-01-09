@@ -114,6 +114,6 @@ def compute_accuracy(y_true, y_pred, cut_threshold=0.5):
 
 
 if __name__ == "__main__":
-    X, y = create_pairs(X=['a', 'b', 'c', 'd', 'a'], y=[0, 1, 2, 3, 0])
+    X, y = create_pairs(X=['b', 'a', 'c', 'd', 'a'], y=[1, 0, 2, 3, 0])
     print(f"X: {X}")
     print(f"y: {y}")

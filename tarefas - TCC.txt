@@ -12,7 +12,7 @@ https://pyimagesearch.com/2018/06/04/keras-multiple-outputs-and-multiple-losses
 https://scikit-learn.org/stable/modules/multiclass.html
 
 escrever o tcc
-começar por: 
+começar por:
 	referencial teórico
 	metodologia
 
@@ -35,3 +35,22 @@ pesquisar melhor o earlystopping para multioutputs
 testar grid search para learning ratio
 testar com mais seeds
 testar ciamesas
+
+
+semanas finais:
+
+testar imagens em escala de cinza
+
+organizar as redes
+	1 - com ratio classificador
+	2 - com ratio regressor
+	3 - com ratio e scale classificador
+	4 - siamesa
+
+olhar a probabilidade das classes
+
+criar algoritmo para seccionar imagens
+
+usar as imagens seccionadas nas redes
+
+mostar na imagem final apenas as seções reconhecidas pela rede

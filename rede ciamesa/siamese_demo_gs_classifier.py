@@ -33,7 +33,12 @@ def load_data(data_path):
         if filename.endswith(".png"):
             ratio = get_ratio(filename)
             scale = get_scale(filename)
-            img_array = img_to_array(load_img(os.path.join(data_path, filename)))
+            img_array = img_to_array(
+                load_img(
+                    os.path.join(data_path, filename),
+                    color_mode='grayscale',
+                )
+            )
             if ratio is not None and ratio != 18:
                 ratios.append(ratio)
                 scales.append(scale)
@@ -93,16 +98,13 @@ if __name__ == "__main__":
     print("y_val: ", len(y_val))
 
     data_result_keys = [
-        "loss",
-        "output_0_accuracy",
-        "accuracy_1_data",
+        "eval_loss",
+        "calculated_accurracy",
         "average_loss",
-        "average_accuracy_0",
-        "std_accuracy_0",
-        "average_accuracy_1",
-        "std_accuracy_1",
+        "average_calculated_accurracy",
+        "std_calculated_accurracy",
     ]
-    ingnore_params = ["seeds"]
+    ignore_params = ["seeds"]
 
     print("num classes: ", num_classes)
     params = {
@@ -112,17 +114,17 @@ if __name__ == "__main__":
         "kernel_size": [3],
         "layers": [5],
         "optimizer": ["Adam"],
-        "learning_rate": [0.001],
+        "learning_rate": [[0.001, 0.002, 0.005]],
         "loss": ["categorical_crossentropy"],
         "metrics": [["accuracy"]],
-        "early_stopping__use_early_stopping": [True],
+        "early_stopping__use_early_stopping": [False],
         "early_stopping__monitor": ["loss"],
         "early_stopping__mode": ["min"],
-        "early_stopping__min_delta":  [0.0001, 0.0002, 0.0005],
+        "early_stopping__min_delta":  [0.0001],
         "early_stopping__patience": [5],
         "early_stopping__restore_best_weights": [True],
     }
-    samples_for_each_params_combination = 1
+    samples_for_each_params_combination = 3
 
     early_stopping_prefix = "early_stopping__"
 
@@ -137,16 +139,21 @@ if __name__ == "__main__":
         print("file already exists")
     except Exception as e:
         for i, params_combination in enumerate(params_combinations):
-            params_combination["loss"] = []
-            params_combination["output_0_accuracy"] = []
-            params_combination["accuracy_1_data"] = []
+            params_combination["eval_loss"] = []
+            # params_combination["val_loss"] = []
+            params_combination["calculated_accurracy"] = []
+            # params_combination["output_0_accuracy"] = []
+            # params_combination["accuracy_1_data"] = []
             params_combination["seeds"] = []
 
             params_combination["average_loss"] = None
-            params_combination["average_accuracy_0"] = None
-            params_combination["std_accuracy_0"] = None
-            params_combination["average_accuracy_1"] = None
-            params_combination["std_accuracy_1"] = None
+            # params_combination["average_val_loss"] = None
+            params_combination["average_calculated_accurracy"] = None
+            params_combination["std_calculated_accurracy"] = None
+            # params_combination["average_accuracy_0"] = None
+            # params_combination["std_accuracy_0"] = None
+            # params_combination["average_accuracy_1"] = None
+            # params_combination["std_accuracy_1"] = None
 
         with open(file_name, "x") as file:
             dump(params_combinations, file, indent=4)
@@ -163,8 +170,10 @@ if __name__ == "__main__":
             continue
 
         loss_data = []
-        accuracy_0_data = []
-        accuracy_1_data = []
+        # val_loss_data = []
+        calculated_accurracy = []
+        # accuracy_0_data = []
+        # accuracy_1_data = []
         seeds = []
         for j in range(samples_for_each_params_combination):
             # comando para 'zerar' a biblioteca Keras
@@ -190,7 +199,7 @@ if __name__ == "__main__":
             model_params = {
                 k: v
                 for k, v in params_combination.items()
-                if not k.startswith(early_stopping_prefix) and k not in data_result_keys and k not in ingnore_params
+                if not k.startswith(early_stopping_prefix) and k not in data_result_keys and k not in ignore_params
             }
 
             model = siamese(**model_params)
@@ -204,7 +213,7 @@ if __name__ == "__main__":
             history = model.fit(
                 [X_train[:,0], X_train[:,1]],
                 y_train,
-                epochs=100,
+                epochs=20,
                 validation_data=([X_val[:,0], X_val[:,1]], y_val),
                 callbacks=callbacks,
                 verbose=1,
@@ -213,18 +222,26 @@ if __name__ == "__main__":
             print(history.history)
             print("__________________")
 
-            loss = model.evaluate(x=[X_test[:,0], X_test[:,1]], y=y_test)
+            eval_loss = model.evaluate(x=[X_test[:,0], X_test[:,1]], y=y_test)
 
-            print(f'Loss: {loss}')
+            print(f'eval_loss: {eval_loss}')
 
             y_predict = model.predict([X_test[:,0], X_test[:,1]])
             print(f"y_predict mean: {np.mean(y_predict)}")
             # for i, j in zip(y_test, y_predict):
             #     print(i, " - ", j, " = ", i-j)
 
-            for cut_threshold in np.arange(0, 1, 0.1):
-                accuracy = compute_accuracy(y_true=y_test, y_pred=y_predict, cut_threshold=cut_threshold)
-                print(f'cut_threshold: {cut_threshold} - accuracy: {accuracy}')
+            # for cut_threshold in np.arange(0, 1, 0.1):
+            #     accuracy = compute_accuracy(y_true=y_test, y_pred=y_predict, cut_threshold=cut_threshold)
+            #     print(f'cut_threshold: {cut_threshold} - accuracy: {accuracy}')
+
+            cut_threshold = 0.5
+            accuracy = compute_accuracy(y_true=y_test, y_pred=y_predict, cut_threshold=cut_threshold)
+            loss_data.append(eval_loss)
+            # val_loss_data.append()
+            calculated_accurracy.append(accuracy)
+
+            print(f'cut_threshold: {cut_threshold} - accuracy: {accuracy}')
 
             fig, axes = plt.subplots()
             axes.set_ylim(bottom=0, top=3)
@@ -234,20 +251,25 @@ if __name__ == "__main__":
             plt.xlabel('Epoch')
             plt.ylabel('Loss/Accuracy')
             plt.legend()
-            plt.savefig("graph.png")
-            # plt.show()
-            exit()
+            # plt.savefig("graph.png")
+            plt.show()
+            # exit()
 
-        params_combination["loss"] = loss_data
-        params_combination["output_0_accuracy"] = accuracy_0_data
-        params_combination["accuracy_1_data"] = accuracy_1_data
+
+        params_combination["eval_loss"] = loss_data
+        # params_combination["val_loss"] =
+        params_combination["calculated_accurracy"] = calculated_accurracy
+        # params_combination["output_0_accuracy"] = accuracy_0_data
+        # params_combination["accuracy_1_data"] = accuracy_1_data
         params_combination["seeds"] = seeds
 
         params_combination["average_loss"] = mean(loss_data)
-        params_combination["average_accuracy_0"] = mean(accuracy_0_data)
-        params_combination["std_accuracy_0"] = stdev(accuracy_0_data)
-        params_combination["average_accuracy_1"] = mean(accuracy_1_data)
-        params_combination["std_accuracy_1"] = stdev(accuracy_1_data)
+        params_combination["average_calculated_accurracy"] = mean(calculated_accurracy)
+        params_combination["std_calculated_accurracy"] = stdev(calculated_accurracy)
+        # params_combination["average_accuracy_0"] = mean(accuracy_0_data)
+        # params_combination["std_accuracy_0"] = stdev(accuracy_0_data)
+        # params_combination["average_accuracy_1"] = mean(accuracy_1_data)
+        # params_combination["std_accuracy_1"] = stdev(accuracy_1_data)
 
         # print("loss: ", params_combination["loss"])
         # print("output_0_accuracy: ", params_combination["output_0_accuracy"])

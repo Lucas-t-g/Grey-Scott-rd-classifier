@@ -3,7 +3,7 @@
         "img_shape": [
             128,
             128,
-            3
+            1
         ],
         "num_classes_list": [
             7,
@@ -14,30 +14,40 @@
         "layers": 5,
         "optimizer": "Adam",
         "learning_rate": 0.001,
-        "loss": [],
+        "loss": "categorical_crossentropy",
         "metrics": [
             "accuracy"
         ],
-        "early_stopping__use_early_stopping": true,
+        "early_stopping__use_early_stopping": false,
         "early_stopping__monitor": "loss",
         "early_stopping__mode": "min",
         "early_stopping__min_delta": 0.0001,
         "early_stopping__patience": 5,
         "early_stopping__restore_best_weights": true,
-        "output_0_accuracy": [],
-        "accuracy_1_data": [],
-        "seeds": [],
-        "average_loss": null,
-        "average_accuracy_0": null,
-        "std_accuracy_0": null,
-        "average_accuracy_1": null,
-        "std_accuracy_1": null
+        "eval_loss": [
+            0.060635559260845184,
+            0.04962187260389328,
+            0.04627335071563721
+        ],
+        "calculated_accurracy": [
+            0.9166666666666666,
+            0.930952380952381,
+            0.9476190476190476
+        ],
+        "seeds": [
+            0,
+            1,
+            2
+        ],
+        "average_loss": 0.05217692752679189,
+        "average_calculated_accurracy": 0.9317460317460318,
+        "std_calculated_accurracy": 0.01549144547297074
     },
     {
         "img_shape": [
             128,
             128,
-            3
+            1
         ],
         "num_classes_list": [
             7,
@@ -48,30 +58,40 @@
         "layers": 5,
         "optimizer": "Adam",
         "learning_rate": 0.001,
-        "loss": [],
+        "loss": "categorical_crossentropy",
         "metrics": [
             "accuracy"
         ],
-        "early_stopping__use_early_stopping": true,
+        "early_stopping__use_early_stopping": false,
         "early_stopping__monitor": "loss",
         "early_stopping__mode": "min",
         "early_stopping__min_delta": 0.0002,
         "early_stopping__patience": 5,
         "early_stopping__restore_best_weights": true,
-        "output_0_accuracy": [],
-        "accuracy_1_data": [],
-        "seeds": [],
-        "average_loss": null,
-        "average_accuracy_0": null,
-        "std_accuracy_0": null,
-        "average_accuracy_1": null,
-        "std_accuracy_1": null
+        "eval_loss": [
+            0.060635559260845184,
+            0.04962187260389328,
+            0.04627335071563721
+        ],
+        "calculated_accurracy": [
+            0.9166666666666666,
+            0.930952380952381,
+            0.9476190476190476
+        ],
+        "seeds": [
+            0,
+            1,
+            2
+        ],
+        "average_loss": 0.05217692752679189,
+        "average_calculated_accurracy": 0.9317460317460318,
+        "std_calculated_accurracy": 0.01549144547297074
     },
     {
         "img_shape": [
             128,
             128,
-            3
+            1
         ],
         "num_classes_list": [
             7,
@@ -82,23 +102,33 @@
         "layers": 5,
         "optimizer": "Adam",
         "learning_rate": 0.001,
-        "loss": [],
+        "loss": "categorical_crossentropy",
         "metrics": [
             "accuracy"
         ],
-        "early_stopping__use_early_stopping": true,
+        "early_stopping__use_early_stopping": false,
         "early_stopping__monitor": "loss",
         "early_stopping__mode": "min",
         "early_stopping__min_delta": 0.0005,
         "early_stopping__patience": 5,
         "early_stopping__restore_best_weights": true,
-        "output_0_accuracy": [],
-        "accuracy_1_data": [],
-        "seeds": [],
-        "average_loss": null,
-        "average_accuracy_0": null,
-        "std_accuracy_0": null,
-        "average_accuracy_1": null,
-        "std_accuracy_1": null
+        "eval_loss": [
+            0.060635559260845184,
+            0.04962187260389328,
+            0.04627335071563721
+        ],
+        "calculated_accurracy": [
+            0.9166666666666666,
+            0.930952380952381,
+            0.9476190476190476
+        ],
+        "seeds": [
+            0,
+            1,
+            2
+        ],
+        "average_loss": 0.05217692752679189,
+        "average_calculated_accurracy": 0.9317460317460318,
+        "std_calculated_accurracy": 0.01549144547297074
     }
 ]

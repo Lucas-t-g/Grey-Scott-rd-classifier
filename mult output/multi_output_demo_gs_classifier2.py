@@ -99,7 +99,7 @@ if __name__ == "__main__":
     # exit()
 
     data_result_keys = [
-        "loss",
+        "eval_loss",
         "output_0_accuracy",
         "accuracy_1_data",
         "average_loss",
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         "average_accuracy_1",
         "std_accuracy_1",
     ]
-    ingnore_params = ["seeds"]
+    ignore_params = ["seeds"]
 
     print("num classes: ", num_classes)
     params = {
@@ -143,7 +143,7 @@ if __name__ == "__main__":
         print("file already exists")
     except:
         for i, params_combination in enumerate(params_combinations):
-            params_combination["loss"] = []
+            params_combination["eval_loss"] = []
             params_combination["output_0_accuracy"] = []
             params_combination["accuracy_1_data"] = []
             params_combination["seeds"] = []
@@ -196,7 +196,7 @@ if __name__ == "__main__":
             model_params = {
                 k: v
                 for k, v in params_combination.items()
-                if not k.startswith(early_stopping_prefix) and k not in data_result_keys and k not in ingnore_params
+                if not k.startswith(early_stopping_prefix) and k not in data_result_keys and k not in ignore_params
             }
 
             model = create_model(**model_params)
@@ -219,15 +219,15 @@ if __name__ == "__main__":
             # Avaliar o modelo
             # loss, accuracy = model.evaluate(X_test, (yr_test, ys_test))
             # loss, output_0_accuracy, output_1_accuracy = model.evaluate(x=X_test, y=(yr_test, ys_test))
-            loss, output_0_loss, output_1_loss, output_0_accuracy, output_1_accuracy,  = model.evaluate(x=X_test, y=(yr_test, ys_test))
+            eval_loss, output_0_loss, output_1_loss, output_0_accuracy, output_1_accuracy,  = model.evaluate(x=X_test, y=(yr_test, ys_test))
             # output = model.evaluate(x=X_test, y=(yr_test, ys_test))
             # print("output: ", output)
-            print(f'Loss: {loss}')
+            print(f'eval_loss: {eval_loss}')
             print(f'output_0_loss: {output_0_loss}')
             print(f'output_1_loss: {output_1_loss}')
             print(f'output_0_accuracy: {output_0_accuracy}')
             print(f'output_1_accuracy: {output_1_accuracy}')
-            loss_data.append(loss)
+            loss_data.append(eval_loss)
             accuracy_0_data.append(output_0_accuracy)
             accuracy_1_data.append(output_1_accuracy)
 
@@ -247,11 +247,11 @@ if __name__ == "__main__":
             plt.xlabel('Epoch')
             plt.ylabel('Loss/Accuracy')
             plt.legend()
-            plt.savefig("graph.png")
-            # plt.show()
+            # plt.savefig("graph.png")
+            plt.show()
             exit()
 
-        params_combination["loss"] = loss_data
+        # params_combination["loss"] = loss_data
         params_combination["output_0_accuracy"] = accuracy_0_data
         params_combination["accuracy_1_data"] = accuracy_1_data
         params_combination["seeds"] = seeds
